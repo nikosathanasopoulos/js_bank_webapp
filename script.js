@@ -82,7 +82,7 @@ const displayMovements = function(movements, sort=false){
     const html = `
          <div class="movements__row">
           <div class="movements__type movements__type--${type}">${index+1} ${type}</div>
-          <div class="movements__value">${movement}  €</div>
+          <div class="movements__value">${movement.toFixed(2)}  €</div>
         </div>
     `;
     containerMovements.insertAdjacentHTML('afterbegin',html);
@@ -93,7 +93,7 @@ const displayMovements = function(movements, sort=false){
 
 const calcPrintBalance = function(account){
   account.balance  = account.movements.reduce((total,movement)=>total + movement,0);
-  labelBalance.textContent = `${account.balance} EUR`;
+  labelBalance.textContent = `${account.balance.toFixed(2)} EUR`;
 }
 
 const calcDisplaySummary = function(account){
@@ -101,19 +101,19 @@ const calcDisplaySummary = function(account){
   const incomes = movements
       .filter(mov => mov > 0)
       .reduce((total,mov) => total + mov,0);
-  labelSumIn.textContent = `${incomes} €`;
+  labelSumIn.textContent = `${incomes.toFixed(2)} €`;
 
   const outcomes = movements
       .filter(mov => mov < 0)
       .reduce((total,mov) => total + Math.abs(mov),0);
-  labelSumOut.textContent = `${outcomes} €`;
+  labelSumOut.textContent = `${outcomes.toFixed(2)} €`;
 
   const interest = movements
       .filter(mov => mov > 0) // filter only deposits
       .map((deposit) => (deposit * account.interestRate)/100,0) // find the interest for every deposit
       .filter(int => int >= 1) // only add interests greater than 1
       .reduce((total,int) => total + int,0); // add all accumulated interest
-  labelSumInterest.textContent = `${interest} €`;
+  labelSumInterest.textContent = `${interest.toFixed(2)} €`;
 };
 
 const createUsernames = function(accs){
@@ -195,7 +195,7 @@ btnClose.addEventListener('click', function(e){
 // loan
 btnLoan.addEventListener('click', function(e){
   e.preventDefault();
-  const amount = Number(inputLoanAmount.value);
+  const amount = Math.floor(inputLoanAmount.value);
 
   if(amount > 0 && currentAccount.movements.some(movement => movement >= amount * 0.1) ){
     console.log('Loan approved');

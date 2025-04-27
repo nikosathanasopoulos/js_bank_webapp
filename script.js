@@ -116,6 +116,30 @@ const calcDisplaySummary = function(account){
   labelSumInterest.textContent = `${interest.toFixed(2)} €`;
 };
 
+const startLogoutTimer = function(){
+  const tick = function() {
+    labelTimer.textContent = time;
+
+    //Decrease time
+    time--;
+
+    //When 0 logout
+    if (time === 0) {
+      clearInterval(timer);
+      labelWelcome.textContent = `Login to get started`;
+      containerApp.style.opacity = 0;
+    }
+  };
+
+  let time = 180;
+
+  // Call the timer function
+  tick();
+  const timer = setInterval(tick,1000);
+
+  return timer;
+};
+
 const createUsernames = function(accs){
   accs.forEach((acc)=>{
     acc.username = acc.owner
@@ -127,7 +151,7 @@ const createUsernames = function(accs){
 createUsernames(accounts);
 console.log(accounts);
 
-let currentAccount;
+let currentAccount,logoutTimer;
 
 const updateUI = function(account){
   // Display movements
@@ -151,6 +175,9 @@ btnLogin.addEventListener('click', function(e){
     // Clear input fields
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
+    // clear timer if running and start again
+    if(logoutTimer) clearInterval(logoutTimer);
+    logoutTimer = startLogoutTimer();
     updateUI(currentAccount);
   }
 })
@@ -174,22 +201,10 @@ btnTransfer.addEventListener('click', function(e){
     updateUI(currentAccount);
   }
   inputTransferAmount.value = inputTransferTo.value = '';
-})
 
-// close account
-btnClose.addEventListener('click', function(e){
-  e.preventDefault();
-
-  if(inputCloseUsername.value === currentAccount.username &&
-  Number(inputClosePin.value) === currentAccount.pin){
-    const index = accounts.findIndex(account => account.username === currentAccount.username);
-    console.log(index);
-    // Delete account
-    accounts.splice(index,1);
-    // hide UI
-    containerApp.style.opacity = 0;
-  }
-  inputCloseUsername.value = inputClosePin.value = '';
+  // Reset logout timer and restart
+  clearInterval(logoutTimer);
+  logoutTimer = startLogoutTimer();
 })
 
 // loan
@@ -206,7 +221,30 @@ btnLoan.addEventListener('click', function(e){
   }
   inputLoanAmount.value  = '';
 
-})
+  // Reset logout timer and restart
+  clearInterval(logoutTimer);
+  logoutTimer = startLogoutTimer();
+
+});
+
+// close account
+btnClose.addEventListener('click', function(e){
+  e.preventDefault();
+
+  if(inputCloseUsername.value === currentAccount.username &&
+      Number(inputClosePin.value) === currentAccount.pin){
+    const index = accounts.findIndex(account => account.username === currentAccount.username);
+    console.log(index);
+    // Delete account
+    accounts.splice(index,1);
+    // hide UI
+    containerApp.style.opacity = 0;
+  }
+  inputCloseUsername.value = inputClosePin.value = '';
+
+  // Reset logout timer without restarting
+  clearInterval(logoutTimer);
+});
 
 // sorting button
 let sorted = false;
